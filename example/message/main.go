@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	claude "github.com/potproject/claude-sdk-go/v1"
+	claude "github.com/potproject/claude-sdk-go"
 )
 
 func main() {

@@ -9,7 +9,7 @@ https://docs.anthropic.com/claude/
 
 ## Getting Started
 ```bash
-go get github.com/potproject/claude-sdk-go/v1
+go install github.com/potproject/claude-sdk-go
 ```
 
 ## Example
@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	claude "github.com/potproject/claude-sdk-go/v1"
+	claude "github.com/potproject/claude-sdk-go"
 )
 
 func main() {
@@ -55,7 +55,7 @@ import (
 	"fmt"
 	"os"
 
-	claude "github.com/potproject/claude-sdk-go/v1"
+	claude "github.com/potproject/claude-sdk-go"
 )
 
 func main() {
