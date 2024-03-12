@@ -1,3 +1,3 @@
-module github.com/potproject/claude-sdk-go/v1
+module github.com/potproject/claude-sdk-go
 
 go 1.21
