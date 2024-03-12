@@ -9,7 +9,7 @@ https://docs.anthropic.com/claude/
 
 ## Getting Started
 ```bash
-go install github.com/potproject/claude-sdk-go
+go get github.com/potproject/claude-sdk-go
 ```
 
 ## Example
