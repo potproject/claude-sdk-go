@@ -1,4 +1,4 @@
-package main
+package v1
 
 type RequestBodyMessages struct {
 	Model         string                        `json:"model"`

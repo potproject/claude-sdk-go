@@ -1,4 +1,4 @@
-package main
+package v1
 
 type ResponseBodyMessages struct {
 	Id           string                        `json:"id"`
