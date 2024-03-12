@@ -13,7 +13,7 @@ go get github.com/potproject/claude-sdk-go
 ```
 
 ## Example
-### [Create a Message](./example/message/main.go)
+### Create a Message
 ```go
 package main
 
@@ -34,6 +34,13 @@ func main() {
 			{
 				Role:    claude.MessagesRoleUser,
 				Content: "Hello, world!",
+				// Alternatively, you can use ContentTypeText
+				//
+				// ContentTypeText: []claude.RequestBodyMessagesMessagesContentTypeText{
+				// 	{
+				// 		Text: "Hello, world!",
+				// 	},
+				// },
 			},
 		},
 	}
@@ -47,7 +54,7 @@ func main() {
 
 ```
 
-### [Create a Message with Image](./example/message_type_image/main.go)
+### Create a Message with Image
 ```go
 package main
 
