@@ -28,6 +28,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer stream.Close()
 	for {
 		res, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
