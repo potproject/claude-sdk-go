@@ -1,11 +1,15 @@
 # claude-sdk-go
 This is the unofficial Go SDK for the Anthropic Claude API.
 
-https://docs.anthropic.com/claude/
+It is designed with reference to the [sashabaranov/go-openai](https://github.com/sashabaranov/go-openai).
 
-## Support
+Official Docs: https://docs.anthropic.com/claude/
+
+## Supported
 * /v1/messages
-  * Type=Text, Type=Image
+  * Text Message
+  * Image Message
+  * Streaming Messages
 
 ## Getting Started
 ```bash
@@ -18,6 +22,7 @@ go get github.com/potproject/claude-sdk-go
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -44,7 +49,8 @@ func main() {
 			},
 		},
 	}
-	res, err := c.CreateMessages(m)
+	ctx := context.Background()
+	res, err := c.CreateMessages(ctx, m)
 	if err != nil {
 		panic(err)
 	}
@@ -54,11 +60,68 @@ func main() {
 
 ```
 
+<details>
+<summary>Create a Streaming Message</summary>
+
+### Create a Streaming Message
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+
+	claude "github.com/potproject/claude-sdk-go"
+)
+
+func main() {
+	apiKey := os.Getenv("API_KEY")
+	c := claude.NewClient(apiKey)
+	m := claude.RequestBodyMessages{
+		Model:     "claude-3-opus-20240229",
+		MaxTokens: 64,
+		Messages: []claude.RequestBodyMessagesMessages{
+			{
+				Role:    claude.MessagesRoleUser,
+				Content: "Hello, world!",
+			},
+		},
+	}
+	ctx := context.Background()
+	stream, err := c.CreateMessagesStream(ctx, m)
+	if err != nil {
+		panic(err)
+	}
+	for {
+		res, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s", res.Content[0].Text)
+	}
+	fmt.Println()
+	// Hello! How can I assist you today?
+}
+
+```
+
+</details>
+
+<details>
+<summary>Create a Message with Image</summary>
+
 ### Create a Message with Image
 ```go
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -86,7 +149,8 @@ func main() {
 			},
 		},
 	}
-	res, err := c.CreateMessages(m)
+	ctx := context.Background()
+	res, err := c.CreateMessages(ctx, m)
 	if err != nil {
 		panic(err)
 	}
@@ -94,5 +158,8 @@ func main() {
 }
 
 ```
+
+</details>
+
 ## LICENSE
 MIT
