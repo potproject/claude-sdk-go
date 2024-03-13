@@ -16,7 +16,7 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 		"Content-Type":      contentType,
 	}
 	if c.config.Beta != "" {
-		reqHeaders["anthropic-beta"] = c.config.Beta
+		reqHeaders["Anthropic-Beta"] = c.config.Beta
 	}
 
 	jsonBody, err := parseBodyJSON(body)
@@ -47,13 +47,13 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 		}
 		return &result, nil
 	}
-	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+	if (resp.StatusCode >= 400 && resp.StatusCode <= 500) || resp.StatusCode == 529 {
 		var result ResponseError
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("json decode error: %w, status code: %d", err, resp.StatusCode)
 		}
-		return nil, fmt.Errorf(result.Error.Message)
+		return nil, fmt.Errorf("%s: %s", resp.Status, result.Error.Message)
 	}
 	return nil, fmt.Errorf("unexpected error: %d", resp.StatusCode)
 }
