@@ -40,5 +40,7 @@ func main() {
 		fmt.Printf("%s", res.Content[0].Text)
 	}
 	fmt.Println()
+	// Output:
 	// Hello! How can I assist you today?
+	//
 }

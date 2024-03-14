@@ -34,5 +34,6 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(res.Content[0].Text)
+	// Output:
 	// Hello! How can I assist you today?
 }

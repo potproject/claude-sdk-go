@@ -1,4 +1,7 @@
 # claude-sdk-go
+[![Go Reference](https://pkg.go.dev/badge/github.com/potproject/claude-sdk-go.svg)](https://pkg.go.dev/github.com/potproject/claude-sdk-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/potproject/claude-sdk-go)](https://goreportcard.com/report/github.com/potproject/claude-sdk-go)
+
 This is the unofficial Go SDK for the Anthropic Claude API.
 
 It is designed with reference to the [sashabaranov/go-openai](https://github.com/sashabaranov/go-openai).
@@ -55,6 +58,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(res.Content[0].Text)
+	// Output:
 	// Hello! How can I assist you today?
 }
 
@@ -107,7 +111,9 @@ func main() {
 		fmt.Printf("%s", res.Content[0].Text)
 	}
 	fmt.Println()
+	// Output:
 	// Hello! How can I assist you today?
+	//
 }
 
 ```
