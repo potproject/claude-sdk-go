@@ -168,5 +168,54 @@ func main() {
 
 </details>
 
+
+<details>
+<summary>Create a Message with Image(Load File)</summary>
+
+### Create a Message with Image(Load File)
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	claude "github.com/potproject/claude-sdk-go"
+)
+
+func main() {
+	apiKey := os.Getenv("API_KEY")
+	c := claude.NewClient(apiKey)
+	source, err := claude.TypeImageSourceLoadFile("image.png")
+	if err != nil {
+		panic(err)
+	}
+	m := claude.RequestBodyMessages{
+		Model:     "claude-3-opus-20240229",
+		MaxTokens: 1024,
+		Messages: []claude.RequestBodyMessagesMessages{
+			{
+				Role: claude.MessagesRoleUser,
+				ContentTypeImage: []claude.RequestBodyMessagesMessagesContentTypeImage{
+					{
+						Source: source,
+					},
+				},
+			},
+		},
+	}
+	ctx := context.Background()
+	res, err := c.CreateMessages(ctx, m)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res.Content[0].Text)
+}
+
+```
+
+</details>
+
 ## LICENSE
 MIT
