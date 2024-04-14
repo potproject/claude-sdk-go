@@ -120,7 +120,7 @@ func (c *Client) CreateMessagesStream(ctx context.Context, body RequestBodyMessa
 	})
 	go func() {
 		err := conn.Connect()
-		if err != nil {
+		if !errors.Is(err, io.EOF) && err != nil {
 			connectionError <- err
 		}
 	}()
