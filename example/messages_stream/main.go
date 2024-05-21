@@ -2,45 +2,56 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"time"
 
 	claude "github.com/potproject/claude-sdk-go"
 )
 
 func main() {
-	apiKey := os.Getenv("API_KEY")
-	c := claude.NewClient(apiKey)
-	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
-		MaxTokens: 64,
+
+	const CLAUDE_DEFAULT = "claude-3-haiku-20240307"
+
+	apiKey, exists := os.LookupEnv("ANTHROPIC_API_KEY")
+	if !exists {
+		log.Fatal("ANTHROPIC_API_KEY environment variable is not set")
+	}
+	client := claude.NewClient(apiKey)
+
+	body := claude.RequestBodyMessages{
+		Model: CLAUDE_DEFAULT,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{
 				Role:    claude.MessagesRoleUser,
-				Content: "Hello, world!",
+				Content: "Hello, Claude!",
 			},
 		},
+		MaxTokens: 100,
+		Stream:    true,
 	}
-	ctx := context.Background()
-	stream, err := c.CreateMessagesStream(ctx, m)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	stream, err := client.CreateMessagesStream(ctx, body)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to create message stream: %v", err)
 	}
 	defer stream.Close()
+
 	for {
-		res, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			fmt.Println("Stream ended.")
 			break
 		}
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error receiving message: %v", err)
 		}
-		fmt.Printf("%s", res.Content[0].Text)
+		fmt.Printf("Received message: %+v\n", msg)
+		fmt.Printf("Usage - Input Tokens: %d, Output Tokens: %d\n", msg.Usage.InputTokens, msg.Usage.OutputTokens)
 	}
-	fmt.Println()
-	// Output:
-	// Hello! How can I assist you today?
-	//
 }

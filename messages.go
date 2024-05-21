@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 )
 
@@ -24,6 +26,9 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 		return nil, err
 	}
 
+	// Log the request body
+	log.Printf("Request Body: %s", jsonBody)
+
 	req, err := http.NewRequestWithContext(ctx, "POST", reqURL, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, err
@@ -36,12 +41,17 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
+	// Read the response body for logging
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode == http.StatusOK {
 		var result ResponseBodyMessages
-		err = json.NewDecoder(resp.Body).Decode(&result)
+		err = json.Unmarshal(respBody, &result)
 		if err != nil {
 			return nil, err
 		}
@@ -49,12 +59,18 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 	}
 	if (resp.StatusCode >= 400 && resp.StatusCode <= 500) || resp.StatusCode == 529 {
 		var result ResponseError
-		err = json.NewDecoder(resp.Body).Decode(&result)
+		err = json.Unmarshal(respBody, &result)
 		if err != nil {
+			log.Printf("json decode error: %v, status code: %d", err, resp.StatusCode)
 			return nil, fmt.Errorf("json decode error: %w, status code: %d", err, resp.StatusCode)
 		}
+		// Log the error response body
+		log.Printf("Response Error Body: %s", respBody)
 		return nil, fmt.Errorf("%s: %s", resp.Status, result.Error.Message)
 	}
+
+	// Log the unexpected response body
+	log.Printf("Unexpected Response Body: %s", respBody)
 	return nil, fmt.Errorf("unexpected error: %d", resp.StatusCode)
 }
 

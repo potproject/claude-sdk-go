@@ -14,25 +14,21 @@ type RequestBodyMessages struct {
 }
 
 type RequestBodyMessagesMessages struct {
-	Role             string                                        `json:"role"`
-	ContentRaw       interface{}                                   `json:"content"`
-	Content          string                                        `json:"-"`
+	Role       string      `json:"role"`
+	Content    string      `json:"-"`
+	ContentRaw interface{} `json:"content"` // This is used to store the actual content sent in the request
+	// Added fields for structured content
 	ContentTypeText  []RequestBodyMessagesMessagesContentTypeText  `json:"-"`
 	ContentTypeImage []RequestBodyMessagesMessagesContentTypeImage `json:"-"`
 }
 
-const (
-	RequestBodyMessagesMessagesContentTypeTextType  = "text"
-	RequestBodyMessagesMessagesContentTypeImageType = "image"
-)
-
 type RequestBodyMessagesMessagesContentTypeText struct {
-	Type string `json:"type"` // always "text"
+	Type string `json:"type"` // always "text"`
 	Text string `json:"text"`
 }
 
 type RequestBodyMessagesMessagesContentTypeImage struct {
-	Type   string                                            `json:"type"` // always "image"
+	Type   string                                            `json:"type"` // always "image"`
 	Source RequestBodyMessagesMessagesContentTypeImageSource `json:"source"`
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/tmaxmax/go-sse"
 )
 
+// Constants for SSE event types
 const (
 	MessagesStreamResponseTypeMessageStart      = "message_start"
 	MessagesStreamResponseTypeContentBlockStart = "content_block_start"
@@ -22,6 +23,7 @@ const (
 	MessagesStreamResponseTypeError             = "error"
 )
 
+// CreateMessagesStream struct holds the connection and event channels for streaming
 type CreateMessagesStream struct {
 	Connection                 *sse.Connection
 	Unsubscribe                func()
@@ -30,6 +32,7 @@ type CreateMessagesStream struct {
 	ResponseBodyMessagesStream ResponseBodyMessagesStream
 }
 
+// ResponseBodyMessagesStream struct holds the response data for streaming messages
 type ResponseBodyMessagesStream struct {
 	Id           string                              `json:"id"`
 	Type         string                              `json:"type"` // always "message"
@@ -44,16 +47,19 @@ type ResponseBodyMessagesStream struct {
 	} `json:"usage"`
 }
 
+// ResponseBodyMessagesContentStream struct holds the content of the streaming messages
 type ResponseBodyMessagesContentStream struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
 }
 
+// ResponseContentMessageStartStream struct holds the initial message start event data
 type ResponseContentMessageStartStream struct {
 	Type    string                     `json:"type"`
 	Message ResponseBodyMessagesStream `json:"message"`
 }
 
+// ResponseContentBlockDeltaStream struct holds the content block delta event data
 type ResponseContentBlockDeltaStream struct {
 	Type  string `json:"type"`
 	Index int64  `json:"index"`
@@ -63,6 +69,7 @@ type ResponseContentBlockDeltaStream struct {
 	} `json:"delta"`
 }
 
+// ResponseMessageDeltaStream struct holds the message delta event data
 type ResponseMessageDeltaStream struct {
 	Type  string `json:"type"`
 	Delta struct {
@@ -74,21 +81,23 @@ type ResponseMessageDeltaStream struct {
 	} `json:"usage"`
 }
 
+// CreateMessagesStream initializes a new streaming connection for messages
 func (c *Client) CreateMessagesStream(ctx context.Context, body RequestBodyMessages) (*CreateMessagesStream, error) {
 	reqURL := c.config.BaseURL + c.config.Endpoint
 	body.Stream = true
-	reqHeaders := map[string]string{
-		"X-Api-Key":         c.config.ApiKey,
-		"Anthropic-Version": c.config.Version,
-		"Content-Type":      contentType,
-	}
-	if c.config.Beta != "" {
-		reqHeaders["anthropic-beta"] = c.config.Beta
-	}
 
-	jsonBody, err := parseBodyJSON(body)
+	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
+	}
+
+	reqHeaders := c.defaultHeaders()
+	req, err := http.NewRequestWithContext(ctx, "POST", reqURL, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range reqHeaders {
+		req.Header.Set(k, v)
 	}
 
 	client := sse.Client{
@@ -96,14 +105,6 @@ func (c *Client) CreateMessagesStream(ctx context.Context, body RequestBodyMessa
 		Backoff: sse.Backoff{
 			MaxRetries: -1,
 		},
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", reqURL, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return nil, err
-	}
-	for k, v := range reqHeaders {
-		req.Header.Set(k, v)
 	}
 
 	conn := client.NewConnection(req)
@@ -118,12 +119,14 @@ func (c *Client) CreateMessagesStream(ctx context.Context, body RequestBodyMessa
 		}
 		chanEvent <- e
 	})
+
 	go func() {
 		err := conn.Connect()
 		if !errors.Is(err, io.EOF) && err != nil {
 			connectionError <- err
 		}
 	}()
+
 	return &CreateMessagesStream{
 		Connection:                 conn,
 		Unsubscribe:                unsubscribe,
@@ -133,12 +136,14 @@ func (c *Client) CreateMessagesStream(ctx context.Context, body RequestBodyMessa
 	}, nil
 }
 
+// Close closes the streaming connection and cleans up resources
 func (c *CreateMessagesStream) Close() {
 	close(c.Event)
 	close(c.Error)
 	c.Unsubscribe()
 }
 
+// Recv receives events from the streaming connection and updates usage data
 func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 	select {
 	case e := <-c.Event:
@@ -165,12 +170,12 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 			if err != nil {
 				return ResponseBodyMessagesStream{}, err
 			}
-			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
-				{
-					Type: "text",
-					Text: r.Delta.Text,
-				},
-			}
+			c.ResponseBodyMessagesStream.Content = append(c.ResponseBodyMessagesStream.Content, ResponseBodyMessagesContentStream{
+				Type: "text",
+				Text: r.Delta.Text,
+			})
+			// Update output tokens usage
+			c.ResponseBodyMessagesStream.Usage.OutputTokens += int64(len(r.Delta.Text)) // Simplified token count, adjust as needed
 			return c.ResponseBodyMessagesStream, nil
 		case MessagesStreamResponseTypeMessageDelta:
 			d := []byte(e.Data)
@@ -179,18 +184,10 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 			if err != nil {
 				return ResponseBodyMessagesStream{}, err
 			}
-			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{}
 			c.ResponseBodyMessagesStream.StopReason = r.Delta.StopReason
 			c.ResponseBodyMessagesStream.StopSequence = r.Delta.StopSequence
-			c.ResponseBodyMessagesStream.Usage.OutputTokens = r.Usage.OutputTokens
-			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
-				{
-					Type: "text",
-					Text: "",
-				},
-			}
+			c.ResponseBodyMessagesStream.Usage.OutputTokens += r.Usage.OutputTokens
 			return c.ResponseBodyMessagesStream, nil
-
 		case MessagesStreamResponseTypeMessageStop:
 			return c.ResponseBodyMessagesStream, io.EOF
 		case MessagesStreamResponseTypeError:
@@ -206,4 +203,17 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 		return ResponseBodyMessagesStream{}, err
 	}
 	return c.ResponseBodyMessagesStream, nil
+}
+
+// Helper function to set default headers
+func (c *Client) defaultHeaders() map[string]string {
+	headers := map[string]string{
+		"X-Api-Key":         c.config.ApiKey,
+		"Anthropic-Version": c.config.Version,
+		"Content-Type":      "application/json",
+	}
+	if c.config.Beta != "" {
+		headers["Anthropic-Beta"] = c.config.Beta
+	}
+	return headers
 }
