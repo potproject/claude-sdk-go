@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	claude "github.com/potproject/claude-sdk-go"
+	claude "github.com/boxabirds/claude-sdk-go"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module github.com/potproject/claude-sdk-go
+module github.com/boxabirds/claude-sdk-go
 
 go 1.21
 
