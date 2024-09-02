@@ -62,29 +62,28 @@ func parseBodyJSON(req RequestBodyMessages) ([]byte, error) {
 	for i, m := range req.Messages {
 		if m.Content != "" {
 			req.Messages[i].ContentRaw = m.Content
+			return json.Marshal(req)
 		}
 
+		var contentMulti []interface{}
 		if len(m.ContentTypeText) > 0 {
 			for j := range m.ContentTypeText {
 				m.ContentTypeText[j].Type = "text"
+				contentMulti = append(contentMulti, m.ContentTypeText[j])
 			}
-			raw, err := json.Marshal(m.ContentTypeText)
-			if err != nil {
-				return nil, err
-			}
-			req.Messages[i].ContentRaw = json.RawMessage(raw)
 		}
 
 		if len(m.ContentTypeImage) > 0 {
 			for j := range m.ContentTypeImage {
 				m.ContentTypeImage[j].Type = "image"
+				contentMulti = append(contentMulti, m.ContentTypeImage[j])
 			}
-			raw, err := json.Marshal(m.ContentTypeImage)
-			if err != nil {
-				return nil, err
-			}
-			req.Messages[i].ContentRaw = json.RawMessage(raw)
 		}
+		raw, err := json.Marshal(contentMulti)
+		if err != nil {
+			return nil, err
+		}
+		req.Messages[i].ContentRaw = json.RawMessage(raw)
 	}
 	return json.Marshal(req)
 }
