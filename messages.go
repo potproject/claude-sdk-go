@@ -62,7 +62,7 @@ func parseBodyJSON(req RequestBodyMessages) ([]byte, error) {
 	for i, m := range req.Messages {
 		if m.Content != "" {
 			req.Messages[i].ContentRaw = m.Content
-			return json.Marshal(req)
+			continue
 		}
 
 		var contentMulti []interface{}
