@@ -14,9 +14,16 @@ type ResponseBodyMessages struct {
 	} `json:"usage"`
 }
 
+const (
+	ResponseBodyMessagesContentTypeMessage  = "message"
+	ResponseBodyMessagesContentTypeText     = "text"
+	ResponseBodyMessagesContentTypeThinking = "thinking"
+)
+
 type ResponseBodyMessagesContent struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
+	Type     string `json:"type"`
+	Text     string `json:"text"`
+	Thinking string `json:"thinking"`
 }
 
 type ResponseError struct {

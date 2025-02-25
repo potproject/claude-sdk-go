@@ -45,8 +45,9 @@ type ResponseBodyMessagesStream struct {
 }
 
 type ResponseBodyMessagesContentStream struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
+	Type     string `json:"type"`
+	Text     string `json:"text"`
+	Thinking string `json:"thinking"`
 }
 
 type ResponseContentMessageStartStream struct {
@@ -58,8 +59,9 @@ type ResponseContentBlockDeltaStream struct {
 	Type  string `json:"type"`
 	Index int64  `json:"index"`
 	Delta struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
+		Type     string `json:"type"`
+		Text     string `json:"text"`
+		Thinking string `json:"thinking"`
 	} `json:"delta"`
 }
 
@@ -153,8 +155,9 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 			c.ResponseBodyMessagesStream = r.Message
 			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
 				{
-					Type: "text",
-					Text: "",
+					Type:     "message",
+					Text:     "",
+					Thinking: "",
 				},
 			}
 			return c.ResponseBodyMessagesStream, nil
@@ -165,12 +168,26 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 			if err != nil {
 				return ResponseBodyMessagesStream{}, err
 			}
-			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
-				{
-					Type: "text",
-					Text: r.Delta.Text,
-				},
+			if r.Delta.Type == "thinking_delta" {
+				c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
+					{
+						Type:     "thinking",
+						Text:     "",
+						Thinking: r.Delta.Thinking,
+					},
+				}
 			}
+
+			if r.Delta.Type == "text_delta" {
+				c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
+					{
+						Type:     "text",
+						Text:     r.Delta.Text,
+						Thinking: "",
+					},
+				}
+			}
+
 			return c.ResponseBodyMessagesStream, nil
 		case MessagesStreamResponseTypeMessageDelta:
 			d := []byte(e.Data)
@@ -185,7 +202,7 @@ func (c *CreateMessagesStream) Recv() (ResponseBodyMessagesStream, error) {
 			c.ResponseBodyMessagesStream.Usage.OutputTokens = r.Usage.OutputTokens
 			c.ResponseBodyMessagesStream.Content = []ResponseBodyMessagesContentStream{
 				{
-					Type: "text",
+					Type: "message",
 					Text: "",
 				},
 			}

@@ -5,12 +5,18 @@ type RequestBodyMessages struct {
 	Messages      []RequestBodyMessagesMessages `json:"messages"`
 	System        string                        `json:"system"` // optional
 	MaxTokens     int                           `json:"max_tokens"`
-	MetaData      map[string]interface{}        `json:"metadata"`       // optional
-	StopSequences []string                      `json:"stop_sequences"` // optional
-	Stream        bool                          `json:"stream"`         // optional
-	Temperature   float64                       `json:"temperature"`    // optional
-	TopP          float64                       `json:"top_p"`          // optional
-	TopK          float64                       `json:"top_k"`          // optional
+	Thinking      *RequestBodyMessagesThinking  `json:"thinking,omitempty"`    // optional
+	MetaData      map[string]interface{}        `json:"metadata"`              // optional
+	StopSequences []string                      `json:"stop_sequences"`        // optional
+	Stream        bool                          `json:"stream"`                // optional
+	Temperature   float64                       `json:"temperature,omitempty"` // optional
+	TopP          float64                       `json:"top_p,omitempty"`       // optional
+	TopK          float64                       `json:"top_k,omitempty"`       // optional
+}
+
+type RequestBodyMessagesThinking struct {
+	Type         string `json:"type"`
+	BudgetTokens int    `json:"budget_tokens"`
 }
 
 type RequestBodyMessagesMessages struct {
