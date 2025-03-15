@@ -13,6 +13,8 @@ Official Docs: https://docs.anthropic.com/claude/
   * Text Message
   * Image Message
   * Streaming Messages
+  * Thinking
+  * Cache Control
 
 ## Getting Started
 ```bash
@@ -36,8 +38,8 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 	c := claude.NewClient(apiKey)
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
-		MaxTokens: 64,
+		Model:     "claude-3-7-sonnet-20250219",
+		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{
 				Role:    claude.MessagesRoleUser,
@@ -65,6 +67,45 @@ func main() {
 ```
 
 <details>
+<summary>Create a Message(Use Cache)</summary>
+
+### Create a Message(Use Cache)
+```go
+	apiKey := os.Getenv("API_KEY")
+	c := claude.NewClient(apiKey)
+	m := claude.RequestBodyMessages{
+		Model:     "claude-3-7-sonnet-20250219",
+		MaxTokens: 1024,
+		SystemTypeText: []claude.RequestBodySystemTypeText{
+			claude.UseSystemCacheEphemeral("Please speak in Japanese."),
+		},
+		Messages: []claude.RequestBodyMessagesMessages{
+			{
+				Role: claude.MessagesRoleUser,
+				ContentTypeText: []claude.RequestBodyMessagesMessagesContentTypeText{
+					{
+						Text:         "Hello!",
+						CacheControl: claude.UseCacheEphemeral(),
+					},
+				},
+			},
+		},
+	}
+	ctx := context.Background()
+	res, err := c.CreateMessages(ctx, m)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res.Content[0].Text)
+	// Output:
+	// こんにちは！日本語でお話しましょう。
+
+```
+
+</details>
+
+
+<details>
 <summary>Create a Streaming Message</summary>
 
 ### Create a Streaming Message
@@ -85,8 +126,8 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 	c := claude.NewClient(apiKey)
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
-		MaxTokens: 64,
+		Model:     "claude-3-7-sonnet-20250219",
+		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{
 				Role:    claude.MessagesRoleUser,
@@ -139,7 +180,7 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 	c := claude.NewClient(apiKey)
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
+		Model:     "claude-3.7-sonnet-20250219",
 		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{
@@ -151,6 +192,7 @@ func main() {
 							MediaType: "image/png",
 							Data:      "iVBORw0KG...",
 						},
+						CacheControl: claude.UseCacheEphemeral(), // Use Propmt Caching. optional
 					},
 				},
 			},
@@ -192,7 +234,7 @@ func main() {
 		panic(err)
 	}
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
+		Model:     "claude-3-7-sonnet-20250219",
 		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{

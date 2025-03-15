@@ -59,6 +59,7 @@ func (c *Client) CreateMessages(ctx context.Context, body RequestBodyMessages) (
 }
 
 func parseBodyJSON(req RequestBodyMessages) ([]byte, error) {
+	// Parse Messages
 	for i, m := range req.Messages {
 		if m.Content != "" {
 			req.Messages[i].ContentRaw = m.Content
@@ -85,5 +86,19 @@ func parseBodyJSON(req RequestBodyMessages) ([]byte, error) {
 		}
 		req.Messages[i].ContentRaw = json.RawMessage(raw)
 	}
+
+	// Parse System
+	if req.System != "" {
+		req.SystemRaw = req.System
+	}
+
+	if req.SystemTypeText != nil {
+		raw, err := json.Marshal(req.SystemTypeText)
+		if err != nil {
+			return nil, err
+		}
+		req.SystemRaw = json.RawMessage(raw)
+	}
+
 	return json.Marshal(req)
 }

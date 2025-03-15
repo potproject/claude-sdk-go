@@ -16,7 +16,7 @@ func main() {
 		panic(err)
 	}
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
+		Model:     "claude-3-7-sonnet-20250219",
 		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{

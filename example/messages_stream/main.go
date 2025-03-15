@@ -14,8 +14,8 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 	c := claude.NewClient(apiKey)
 	m := claude.RequestBodyMessages{
-		Model:     "claude-3-opus-20240229",
-		MaxTokens: 64,
+		Model:     "claude-3-7-sonnet-20250219",
+		MaxTokens: 1024,
 		Messages: []claude.RequestBodyMessagesMessages{
 			{
 				Role:    claude.MessagesRoleUser,

@@ -1,17 +1,19 @@
 package v1
 
 type RequestBodyMessages struct {
-	Model         string                        `json:"model"`
-	Messages      []RequestBodyMessagesMessages `json:"messages"`
-	System        string                        `json:"system"` // optional
-	MaxTokens     int                           `json:"max_tokens"`
-	Thinking      *RequestBodyMessagesThinking  `json:"thinking,omitempty"`    // optional
-	MetaData      map[string]interface{}        `json:"metadata"`              // optional
-	StopSequences []string                      `json:"stop_sequences"`        // optional
-	Stream        bool                          `json:"stream"`                // optional
-	Temperature   float64                       `json:"temperature,omitempty"` // optional
-	TopP          float64                       `json:"top_p,omitempty"`       // optional
-	TopK          float64                       `json:"top_k,omitempty"`       // optional
+	Model          string                        `json:"model"`
+	Messages       []RequestBodyMessagesMessages `json:"messages"`
+	System         string                        `json:"-"`
+	SystemTypeText []RequestBodySystemTypeText   `json:"-"`
+	SystemRaw      interface{}                   `json:"system,omitempty"` // optional
+	MaxTokens      int                           `json:"max_tokens"`
+	Thinking       *RequestBodyMessagesThinking  `json:"thinking,omitempty"`    // optional
+	MetaData       map[string]interface{}        `json:"metadata"`              // optional
+	StopSequences  []string                      `json:"stop_sequences"`        // optional
+	Stream         bool                          `json:"stream"`                // optional
+	Temperature    float64                       `json:"temperature,omitempty"` // optional
+	TopP           float64                       `json:"top_p,omitempty"`       // optional
+	TopK           float64                       `json:"top_k,omitempty"`       // optional
 }
 
 type RequestBodyMessagesThinking struct {
@@ -27,19 +29,31 @@ type RequestBodyMessagesMessages struct {
 	ContentTypeImage []RequestBodyMessagesMessagesContentTypeImage `json:"-"`
 }
 
+type RequestBodySystemTypeText struct {
+	Type         string               `json:"type"` // always "text"
+	Text         string               `json:"text"`
+	CacheControl *RequestCacheControl `json:"cache_control"`
+}
+
+type RequestCacheControl struct {
+	Type string `json:"type"` // always "ephemeral"
+}
+
 const (
 	RequestBodyMessagesMessagesContentTypeTextType  = "text"
 	RequestBodyMessagesMessagesContentTypeImageType = "image"
 )
 
 type RequestBodyMessagesMessagesContentTypeText struct {
-	Type string `json:"type"` // always "text"
-	Text string `json:"text"`
+	Type         string               `json:"type"` // always "text"
+	Text         string               `json:"text"`
+	CacheControl *RequestCacheControl `json:"cache_control"` // optional
 }
 
 type RequestBodyMessagesMessagesContentTypeImage struct {
-	Type   string                                            `json:"type"` // always "image"
-	Source RequestBodyMessagesMessagesContentTypeImageSource `json:"source"`
+	Type         string                                            `json:"type"` // always "image"
+	Source       RequestBodyMessagesMessagesContentTypeImageSource `json:"source"`
+	CacheControl *RequestCacheControl                              `json:"cache_control"` // optional
 }
 
 type RequestBodyMessagesMessagesContentTypeImageSource struct {
