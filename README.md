@@ -187,11 +187,7 @@ func main() {
 				Role: claude.MessagesRoleUser,
 				ContentTypeImage: []claude.RequestBodyMessagesMessagesContentTypeImage{
 					{
-						Source: claude.RequestBodyMessagesMessagesContentTypeImageSource{
-							Type:      "base64",
-							MediaType: "image/png",
-							Data:      "iVBORw0KG...",
-						},
+						Source: claude.TypeImageSourceLoadBase64("image/png", "iVBORw0K..."), // Media Type, Base64 String
 						CacheControl: claude.UseCacheEphemeral(), // Use Propmt Caching. optional
 					},
 				},

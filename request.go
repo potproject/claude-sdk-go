@@ -40,10 +40,8 @@ type RequestCacheControl struct {
 }
 
 const (
-	RequestBodyMessagesMessagesContentTypeTextType        = "text"
-	RequestBodyMessagesMessagesContentTypeImageType       = "image"
-	RequestBodyMessagesMessagesContentTypeImageSourceData = "data"
-	RequestBodyMessagesMessagesContentTypeImageSourceUrl  = "url"
+	RequestBodyMessagesMessagesContentTypeTextType  = "text"
+	RequestBodyMessagesMessagesContentTypeImageType = "image"
 )
 
 type RequestBodyMessagesMessagesContentTypeText struct {
@@ -57,6 +55,11 @@ type RequestBodyMessagesMessagesContentTypeImage struct {
 	Source       RequestBodyMessagesMessagesContentTypeImageSource `json:"source"`
 	CacheControl *RequestCacheControl                              `json:"cache_control"` // optional
 }
+
+const (
+	RequestBodyMessagesMessagesContentTypeImageSourceTypeBase64 = "base64"
+	RequestBodyMessagesMessagesContentTypeImageSourceTypeUrl    = "url"
+)
 
 type RequestBodyMessagesMessagesContentTypeImageSource struct {
 	Type      string `json:"type"`                 // "base64" or "url"

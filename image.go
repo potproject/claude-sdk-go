@@ -6,6 +6,14 @@ import (
 	"path/filepath"
 )
 
+func TypeImageSourceLoadBase64(mediaType string, data string) RequestBodyMessagesMessagesContentTypeImageSource {
+	return RequestBodyMessagesMessagesContentTypeImageSource{
+		Type:      RequestBodyMessagesMessagesContentTypeImageSourceTypeBase64,
+		MediaType: mediaType,
+		Data:      data,
+	}
+}
+
 func TypeImageSourceLoadUrl(url string) RequestBodyMessagesMessagesContentTypeImageSource {
 	return RequestBodyMessagesMessagesContentTypeImageSource{
 		Type: "url",
@@ -47,7 +55,7 @@ func TypeImageSourceLoadFile(filePath string) (RequestBodyMessagesMessagesConten
 		contentType = "image/webp"
 	}
 	return RequestBodyMessagesMessagesContentTypeImageSource{
-		Type:      "base64",
+		Type:      RequestBodyMessagesMessagesContentTypeImageSourceTypeBase64,
 		MediaType: contentType,
 		Data:      b64,
 	}, nil
