@@ -278,10 +278,6 @@ import (
 func main() {
 	apiKey := os.Getenv("API_KEY")
 	c := claude.NewClient(apiKey)
-	source, err := claude.TypeImageSourceLoadFile("image.png")
-	if err != nil {
-		panic(err)
-	}
 	m := claude.RequestBodyMessages{
 		Model:     "claude-3-7-sonnet-20250219",
 		MaxTokens: 1024,
