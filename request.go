@@ -59,10 +59,10 @@ type RequestBodyMessagesMessagesContentTypeImage struct {
 }
 
 type RequestBodyMessagesMessagesContentTypeImageSource struct {
-	Type      string `json:"type"`
-	MediaType string `json:"media_type,omitempty"`
-	Data      string `json:"data,omitempty"`
-	Url       string `json:"url,omitempty"`
+	Type      string `json:"type"`                 // "base64" or "url"
+	MediaType string `json:"media_type,omitempty"` // base64 type required
+	Data      string `json:"data,omitempty"`       // base64 type required
+	Url       string `json:"url,omitempty"`        // url type required
 }
 
 const (

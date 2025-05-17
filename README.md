@@ -259,6 +259,55 @@ func main() {
 
 </details>
 
+
+<details>
+<summary>Create a Message with Image(Load URL)</summary>
+
+### Create a Message with Image(Load URL)
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	claude "github.com/potproject/claude-sdk-go"
+)
+
+func main() {
+	apiKey := os.Getenv("API_KEY")
+	c := claude.NewClient(apiKey)
+	source, err := claude.TypeImageSourceLoadFile("image.png")
+	if err != nil {
+		panic(err)
+	}
+	m := claude.RequestBodyMessages{
+		Model:     "claude-3-7-sonnet-20250219",
+		MaxTokens: 1024,
+		Messages: []claude.RequestBodyMessagesMessages{
+			{
+				Role: claude.MessagesRoleUser,
+				ContentTypeImage: []claude.RequestBodyMessagesMessagesContentTypeImage{
+					{
+						Source: claude.TypeImageSourceLoadUrl("https://github.com/potproject/claude-sdk-go/blob/main/example/messages_image_file/image.png?raw=true"),
+					},
+				},
+			},
+		},
+	}
+	ctx := context.Background()
+	res, err := c.CreateMessages(ctx, m)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res.Content[0].Text)
+}
+
+```
+
+</details>
+
 <details>
 <summary>Create a Message (Use Thinking)</summary>
 

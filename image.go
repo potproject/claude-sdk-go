@@ -6,6 +6,13 @@ import (
 	"path/filepath"
 )
 
+func TypeImageSourceLoadUrl(url string) RequestBodyMessagesMessagesContentTypeImageSource {
+	return RequestBodyMessagesMessagesContentTypeImageSource{
+		Type: "url",
+		Url:  url,
+	}
+}
+
 func TypeImageSourceLoadFile(filePath string) (RequestBodyMessagesMessagesContentTypeImageSource, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
